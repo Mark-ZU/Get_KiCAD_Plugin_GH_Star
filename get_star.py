@@ -11,10 +11,10 @@ def read_repos(file):
         lines = f.readlines()
         repos = {}
         for line in lines:
-            line = line.strip()
+            line = line.replace("\n","").strip()
             if line == "":
                 continue
-            repo, star = line.split("\t")[:2]
+            repo, url, star = line.split("|")[1:4]
             repos[repo] = star
         return repos
 
@@ -23,6 +23,8 @@ if __name__ == "__main__":
     g = Github(os.getenv("GITHUB_ACCESS_TOKEN"))
 
     repos = read_urls("urls.txt")
+
+    repos.extend(read_urls("manual_urls.txt"))
 
     stored_repos = read_repos("repos.txt")
 
@@ -45,4 +47,4 @@ if __name__ == "__main__":
     stored_repos = dict(sorted(stored_repos.items(), key=lambda x: int(x[1]), reverse=True))
     with open("repos.txt", "w") as f:
         for repo, stars in stored_repos.items():
-            f.write(f"{repo}\t{stars}\n")
+            f.write(f"|{repo}|https://github.com/{repo}|{stars}|\n")
